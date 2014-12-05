@@ -1,5 +1,5 @@
 from flask import Flask, session, redirect, url_for, escape, request, render_template
-from game import *
+from python.game import *
 
 app = Flask(__name__)
 board = [None for i in range(9)]
@@ -58,67 +58,61 @@ def computer_move():
 def index():
     for i in range(9):
         board[i] = None
-    return render_template('dashboard.html', board=enumerate(board, 1), win=[False])
+    return render_template('index.html', board=enumerate(board, 1), win=[False])
 
 @app.route('/1')
 def one():
     board[0] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/2')
 def two():
     board[1] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/3')
 def three():
     board[2] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/4')
 def four():
     board[3] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/5')
 def five():
     board[4] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/6')
 def six():
     board[5] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/7')
 def seven():
     board[6] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/8')
 def eight():
     board[7] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 @app.route('/9')
 def nine():
     board[8] = 1
     win = computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
-
-@app.route('/new')
-def new():
-    for i in range(9):
-        board[i] = None
-    return render_template('dashboard.html', board=enumerate(board, 1), win=[False])
+    return render_template('index.html', board=enumerate(board, 1), win=win)
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'alex'

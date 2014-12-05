@@ -6,6 +6,18 @@ board = [None for i in range(9)]
 
 # player is 1, computer is 0
 
+first_moves = {
+    0:4,
+    1:0,
+    2:5,
+    3:0,
+    4:0,
+    5:2,
+    6:4,
+    7:1,
+    8:4
+}
+
 def computer_move():
     count_of_moves = 0
     
@@ -15,10 +27,7 @@ def computer_move():
             last_square = position
 
     if count_of_moves <= 1:
-        if last_square == 8:
-            board[0] = 0
-        else:
-            board[last_square + 1] = 0
+        board[first_moves[last_square]] = 0
     else:
         if check_win(board)[0]:
             return check_win(board)
@@ -34,8 +43,7 @@ def computer_move():
 
 # def computer_move():
 #     if check_win(board)[0]:
-#         print 'first check_win() is', print_win(board)
-#         return print_win(board)
+#         return check_win(board)
 
 #     print '\nNow, computer goes...\n'
 
@@ -44,11 +52,12 @@ def computer_move():
 #     board[move[1]] = 0
 
 #     if check_win(board)[0]:
-#         print 'second check_win() is', print_win(board)
-#         return print_win(board)
+#         return check_win(board)
 
 @app.route('/')
 def index():
+    for i in range(9):
+        board[i] = None
     return render_template('dashboard.html', board=enumerate(board, 1), win=[False])
 
 @app.route('/1')

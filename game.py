@@ -114,4 +114,6 @@ def this_fails():
 
 if __name__=='__main__':
 	board = [None for i in range(9)]
+	board[0] = 0
+	board[1] = 1
 	play()

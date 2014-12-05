@@ -32,6 +32,19 @@ def computer_move():
         if check_win(board)[0]:
             print_win(board)
 
+def computer_move():
+    if check_win(board)[0]:
+        print_win(board)
+
+    print '\nNow, computer goes...\n'
+
+    move = move_helper(board, 0)
+    print 'this was the move that computer tried:', move[1]
+    board[move[1]] = 0
+
+    if check_win(board)[0]:
+        print_win(board)
+
 @app.route('/')
 def index():
     return render_template('dashboard.html', board=enumerate(board, 1))

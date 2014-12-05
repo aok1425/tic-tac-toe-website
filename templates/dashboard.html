@@ -15,9 +15,7 @@
 
   <!-- Custom styles for this template -->
   <link href="{{ url_for('static', filename='./css/dashboard.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='./css/jumbotron-narrow.css') }}" rel="stylesheet">
-
-</head>
+  <link href="{{ url_for('static', filename='./css/jumbotron-narrow.css') }}" rel="stylesheet"></head>
 
 <body>
 
@@ -48,14 +46,37 @@
     </form>
 
   </div>
-
+  {% if win[0] == True %}
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <h1 class="modal-title" id="myModalLabel">
+            {% if win[1] == 1 %}
+            <p class="text-center">You win</p>
+            {% endif %}
+            {% if win[1] == 0 %}
+            <p class="text-center">Tie</p>
+            {% endif %}
+            {% if win[1] == -1 %}
+            <p class="text-center">You lose</p>
+            {% endif %}
+          </h1>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
   <!-- Bootstrap core JavaScript
     ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="../../dist/js/bootstrap.min.js"></script>
-  <script src="../../assets/js/docs.min.js"></script>
-  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="{{ url_for('static', filename='./js/bootstrap.min.js') }}"></script>
+  <script>$('#myModal').modal('show')</script>
 </body>
 </html>

@@ -21,7 +21,7 @@ def computer_move():
             board[last_square + 1] = 0
     else:
         if check_win(board)[0]:
-            print_win(board)
+            return check_win(board)
 
         print '\nNow, computer goes...\n'
 
@@ -30,84 +30,86 @@ def computer_move():
         board[move[1]] = 0
 
         if check_win(board)[0]:
-            print_win(board)
+            return check_win(board)
 
-def computer_move():
-    if check_win(board)[0]:
-        print_win(board)
+# def computer_move():
+#     if check_win(board)[0]:
+#         print 'first check_win() is', print_win(board)
+#         return print_win(board)
 
-    print '\nNow, computer goes...\n'
+#     print '\nNow, computer goes...\n'
 
-    move = move_helper(board, 0)
-    print 'this was the move that computer tried:', move[1]
-    board[move[1]] = 0
+#     move = move_helper(board, 0)
+#     print 'this was the move that computer tried:', move[1]
+#     board[move[1]] = 0
 
-    if check_win(board)[0]:
-        print_win(board)
+#     if check_win(board)[0]:
+#         print 'second check_win() is', print_win(board)
+#         return print_win(board)
 
 @app.route('/')
 def index():
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    return render_template('dashboard.html', board=enumerate(board, 1), win=[False])
 
 @app.route('/1')
 def one():
     board[0] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/2')
 def two():
     board[1] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/3')
 def three():
     board[2] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/4')
 def four():
     board[3] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/5')
 def five():
     board[4] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/6')
 def six():
     board[5] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/7')
 def seven():
     board[6] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/8')
 def eight():
     board[7] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/9')
 def nine():
     board[8] = 1
-    computer_move()
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    win = computer_move()
+    return render_template('dashboard.html', board=enumerate(board, 1), win=win)
 
 @app.route('/new')
 def new():
     for i in range(9):
         board[i] = None
-    return render_template('dashboard.html', board=enumerate(board, 1))
+    return render_template('dashboard.html', board=enumerate(board, 1), win=[False])
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'alex'

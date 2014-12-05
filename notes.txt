@@ -1,3 +1,0 @@
-no alpha-beta pruning, instead computer chooses first move randomly
-
-can add feature to have computer go first

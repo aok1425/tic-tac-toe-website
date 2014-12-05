@@ -1,0 +1,7 @@
+# tried these as alternatives to img + URL, but couldn't get the CSS to work
+
+<input type="image" name='square' value='{{ position }}' src="{{ url_for('static', filename='./images/blank.svg') }}" class="img-responsive" onsubmit="submit();" />
+
+<a href='{{ position }}'>
+<img src="{{ url_for('static', filename='./images/blank.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail">
+</a>

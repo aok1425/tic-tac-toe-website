@@ -23,25 +23,28 @@
     <h1 class='text-center'>Tic-tac-toe</h1>
     <hr>
 
-    <div class="row placeholders">
-      {% for position, square in board %}
-      <div class="col-xs-4 placeholder">
-        {% if square == 0 %}
-        <img src="{{ url_for('static', filename='./images/x.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail">
-        {% endif %}
-        {% if square == 1 %}
-        <img src="{{ url_for('static', filename='./images/o.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail">
-        {% endif %}
-        {% if square == None %}
-        <a href='{{ position }}'>
-          <img src="{{ url_for('static', filename='./images/blank.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail"></a>
-        {% endif %}
-      </div>
-      {% endfor %}
-    </div>
+    <form action="{{ url_for('index') }}" method='post'>
 
-    <form action="{{ url_for('index') }}">
+      <div class="row placeholders">
+        {% for position, square in board %}
+        <div class="col-xs-4 placeholder">
+          {% if square == 0 %}
+          <img src="{{ url_for('static', filename='./images/x.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail">
+          {% endif %}
+          {% if square == 1 %}
+          <img src="{{ url_for('static', filename='./images/o.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail">
+          {% endif %}
+          {% if square == None %}
+          <a href='{{ position }}'>
+          <img src="{{ url_for('static', filename='./images/blank.svg') }}" class="img-responsive" alt="Generic placeholder thumbnail">
+          </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
       <button class="btn btn-lg btn-default btn-block" type='submit'>New Game</button>
+      
     </form>
 
   </div>

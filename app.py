@@ -30,7 +30,7 @@ def computer_move():
         board[first_moves[last_square]] = 0
     else:
         if check_win(board)[0]:
-            return check_win(board)
+            return check_win(board) # i could have assigned this to a var, but i think this is more readable, and it's quick anyways.
 
         print '\nNow, computer goes...\n'
 
@@ -41,7 +41,7 @@ def computer_move():
         if check_win(board)[0]:
             return check_win(board)
 
-# def computer_move():
+# def computer_move(): # this is to have the computer think through the first move
 #     if check_win(board)[0]:
 #         return check_win(board)
 
@@ -54,63 +54,17 @@ def computer_move():
 #     if check_win(board)[0]:
 #         return check_win(board)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        pass # If I could get the CSS right, POST the square value here, and update the board, instead of having a separate URL.
     for i in range(9):
         board[i] = None
     return render_template('index.html', board=enumerate(board, 1), win=[False])
 
-@app.route('/1')
-def one():
-    board[0] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/2')
-def two():
-    board[1] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/3')
-def three():
-    board[2] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/4')
-def four():
-    board[3] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/5')
-def five():
-    board[4] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/6')
-def six():
-    board[5] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/7')
-def seven():
-    board[6] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/8')
-def eight():
-    board[7] = 1
-    win = computer_move()
-    return render_template('index.html', board=enumerate(board, 1), win=win)
-
-@app.route('/9')
-def nine():
-    board[8] = 1
+@app.route('/<int:square>')
+def mark_square(square):
+    board[square - 1] = 1
     win = computer_move()
     return render_template('index.html', board=enumerate(board, 1), win=win)
 

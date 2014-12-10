@@ -6,8 +6,12 @@
 
 from command_line_version.game import check_win, print_board, print_win
 from numpy import argmin, argmax
+import pickle
 
-r = {}
+# r = {}
+
+with open('python/board_states.pkl', "rb") as pfile:
+    r = pickle.load(pfile)
 
 def init(key):
 	r[key] = {
@@ -146,6 +150,17 @@ def move_helper(board, side=1, memoization=False): # side=1 is when comp goes
 
 	return game_state, state_move(key, best)
 
+def create_all_board_states():
+	for i in range(9):
+		board = [None for j in range(9)]
+		board[i] = 1
+
+		move_helper(board)
+
+def pickle_board_states(obj, path):
+    with open(path, "wb") as pfile:
+        pickle.dump(obj, pfile)
+
 def test2():
 	board = [0,1,0,None,1,None,1,None,None]
 	# board = [1,None,None,None,None,None,None,None,None]
@@ -194,7 +209,7 @@ def benchmark():
 
 if __name__=='__main__':
 	# benchmark()
-	board = [None for i in range(9)]
-	print 'I am 1. Computer is 0.'	
-	play(board)	
-	# test3()
+	# board = [None for i in range(9)]
+	# print 'I am 1. Computer is 0.'	
+	# play(board)	
+	test3()

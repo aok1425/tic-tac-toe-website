@@ -4,14 +4,15 @@
 # check_win() is [score-value, move]
 # in visit(), you don't know all your children until after you loop through them
 
-from command_line_version.game import check_win, print_board, print_win
+from original.game import check_win, print_board, print_win
 from numpy import argmin, argmax
 import pickle
 
-# r = {}
-
-with open('python/board_states.pkl', "rb") as pfile:
-    r = pickle.load(pfile)
+try:
+	with open('python/board_states.pkl', "rb") as pfile:
+	    r = pickle.load(pfile)
+except:
+	r = {}
 
 def init(key):
 	r[key] = {
@@ -20,27 +21,6 @@ def init(key):
 		'beta': 10,
 		'value': None,
 		'parent': None}
-
-def test1():
-	r = {}
-	init('b')
-	init('e')
-	init('f')
-	init('k')
-	init('l')
-
-	r['e']['value'] = 2
-	r['k']['value'] = 3
-	r['l']['value'] = 0
-
-	r['b']['children'] = list('ef')
-	r['f']['children'] = list('kl')
-
-	visit('b', 1)
-	assert r['b']['beta'] == 2
-	assert r['f']['alpha'] == 3
-
-	print 'tests pass!'
 
 def convert_to_key(board):
 	"""Takes in a board, and converts it to int to use a key in the dict r."""
@@ -65,6 +45,27 @@ def convert_to_board(key):
 			new_board.append(int(char))
 
 	return new_board
+
+def push_to_parent(key, child_key, side):
+	"""If alpha/beta of child is better than parent's beta/alpha, depending on whether level in min or max (aka, the side), push values up."""
+	if side == 0: # even, max, alpha
+		if r[child_key]['beta'] > r[key]['alpha']:
+			r[key]['alpha'] = r[child_key]['beta']	
+	else: # odd, min, beta
+		if r[child_key]['alpha'] < r[key]['beta']:
+			r[key]['beta'] = r[child_key]['alpha']	
+
+def alpha_beta_break(key, side):
+	"""If node's alpha is more than parent's beta, or node's beta is less than parent's alpha, it's not worth looking deeper into tree. So break."""
+	if r[key]['parent']:
+		if side == 0:
+			if r[r[key]['parent']]['beta'] < r[key]['alpha']:
+				print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
+				return True
+		else:
+			if r[r[key]['parent']]['alpha'] > r[key]['beta']:
+				print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
+				return True	
 
 def visit(key, side=1):
 	"""key is in the str code format"""
@@ -100,28 +101,12 @@ def visit(key, side=1):
 			r[key]['children'].add(child_key)
 			visit(child_key, abs(side - 1))
 
-			if side == 0: # even, max, alpha
-				if r[child_key]['beta'] > r[key]['alpha']:
-					r[key]['alpha'] = r[child_key]['beta']	
-			else: # odd, min, beta
-				if r[child_key]['alpha'] < r[key]['beta']:
-					r[key]['beta'] = r[child_key]['alpha']					
+			push_to_parent(key, child_key, side)
 
-			if r[key]['parent']:
-				if side == 0:
-					if r[r[key]['parent']]['beta'] < r[key]['alpha']:
-						print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
-						break
-				else:
-					if r[r[key]['parent']]['alpha'] > r[key]['beta']:
-						print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
-						break					
+			if alpha_beta_break(key, side):
+				break				
 
 			print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])	
-
-	if r[key]['parent'] == None:
-		return 'children for parent are {}'.format(r[key]['children'])
-		# return key # as the only key or board state w/o a parent. aka, the original one
 
 def state_move(now, recommended):
 	"""look at the diff btwn 2 strings, the current, and the recommended move, and find the index that's diff"""
@@ -151,6 +136,7 @@ def move_helper(board, side=1, memoization=False): # side=1 is when comp goes
 	return game_state, state_move(key, best)
 
 def create_all_board_states():
+	"""Cycles through all possible board states--assuming Player makes the first move--using alpha-beta pruning."""
 	for i in range(9):
 		board = [None for j in range(9)]
 		board[i] = 1
@@ -161,14 +147,14 @@ def pickle_board_states(obj, path):
     with open(path, "wb") as pfile:
         pickle.dump(obj, pfile)
 
-def test2():
-	board = [0,1,0,None,1,None,1,None,None]
-	# board = [1,None,None,None,None,None,None,None,None]
+def test1():
+	board = [0,1,0,1,1,0,1,None,None]
 	print move_helper(board)
 	print_board(board)
 
-def test1():
-	board = [0,1,0,1,1,0,1,None,None]
+def test2():
+	board = [0,1,0,None,1,None,1,None,None]
+	# board = [1,None,None,None,None,None,None,None,None]
 	print move_helper(board)
 	print_board(board)
 
@@ -212,4 +198,4 @@ if __name__=='__main__':
 	# board = [None for i in range(9)]
 	# print 'I am 1. Computer is 0.'	
 	# play(board)	
-	test3()
+	test2()

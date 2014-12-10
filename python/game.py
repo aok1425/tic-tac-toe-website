@@ -1,17 +1,168 @@
-# I still don't understand how the alg finds the best path if, say, it has multiple paths to a win.
-# My understanding is that it just chooses the most recent path, going left to right
-# Maybe after I make the first move, all the paths get back as a tie, so it doesn't run into the above problem.
-# Any way to print things to find out?
+# I am 1. Computer is 0. on the board
+# side == 0 is when I am going. side == 1 is when computer is going.
+# opp from prev alg. it's bc this side came from level. can chg back to be like prev alg
+# check_win() is [score-value, move]
+# in visit(), you don't know all your children until after you loop through them
 
-# How to implement alpha-beta prunin?
-from check_win_recursively import check_win
+from original.game import check_win, print_board, print_win
+from numpy import argmin, argmax
 
-def print_board(board):
-	print ' '.join(['-' if i == None else str(i) for i in board][:3])
-	print ' '.join(['-' if i == None else str(i) for i in board][3:6])
-	print ' '.join(['-' if i == None else str(i) for i in board][6:])
+r = {}
 
-def play():
+def init(key):
+	r[key] = {
+		'children': set(),
+		'alpha': -10,
+		'beta': 10,
+		'value': None,
+		'parent': None}
+
+def test1():
+	r = {}
+	init('b')
+	init('e')
+	init('f')
+	init('k')
+	init('l')
+
+	r['e']['value'] = 2
+	r['k']['value'] = 3
+	r['l']['value'] = 0
+
+	r['b']['children'] = list('ef')
+	r['f']['children'] = list('kl')
+
+	visit('b', 1)
+	assert r['b']['beta'] == 2
+	assert r['f']['alpha'] == 3
+
+	print 'tests pass!'
+
+def convert_to_key(board):
+	"""Takes in a board, and converts it to int to use a key in the dict r."""
+	new_board = []
+
+	for sq in board:
+		if sq == None:
+			new_board.append('-')
+		else:
+			new_board.append(str(sq))
+
+	return ''.join(new_board)
+
+def convert_to_board(key):
+	"""Takes in a key, and converts it to board."""
+	new_board = []
+
+	for char in key:
+		if char == '-':
+			new_board.append(None)
+		else:
+			new_board.append(int(char))
+
+	return new_board
+
+def visit(key, side=1):
+	"""key is in the str code format"""
+	print 'visiting {} at side {}'.format(key, side)
+
+	if key not in r:
+		init(key)
+	else:
+		if r[key]['alpha'] != -10 and r[key]['beta'] != 10:
+			return 'skipping this, already in dict'
+
+	result = check_win(convert_to_board(key))
+	board = convert_to_board(key)
+	avail_moves = [i for i in range(len(board)) if board[i] == None]
+
+	if result[0]: # no children; end of game
+		print 'result is', result[1] 
+		r[key]['value'] = result[1]
+		r[key]['alpha'] = r[key]['value']
+		r[key]['beta'] = r[key]['value']
+	else:
+		for i in range(len(avail_moves)): # bc i found that i can't pop() sth if it's being held by for loop
+			temp_pop = avail_moves.pop()
+			board_copy = board[:]
+			board_copy[temp_pop] = abs(side - 1) # was i before
+
+			child_key = convert_to_key(board_copy)	
+
+			if child_key not in r:
+				init(child_key)			
+
+			r[child_key]['parent'] = key
+			r[key]['children'].add(child_key)
+			visit(child_key, abs(side - 1))
+
+			if side == 0: # even, max, alpha
+				if r[child_key]['beta'] > r[key]['alpha']:
+					r[key]['alpha'] = r[child_key]['beta']	
+			else: # odd, min, beta
+				if r[child_key]['alpha'] < r[key]['beta']:
+					r[key]['beta'] = r[child_key]['alpha']					
+
+			if r[key]['parent']:
+				if side == 0:
+					if r[r[key]['parent']]['beta'] < r[key]['alpha']:
+						print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
+						break
+				else:
+					if r[r[key]['parent']]['alpha'] > r[key]['beta']:
+						print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
+						break					
+
+			print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])	
+
+	if r[key]['parent'] == None:
+		return 'children for parent are {}'.format(r[key]['children'])
+		# return key # as the only key or board state w/o a parent. aka, the original one
+
+def state_move(now, recommended):
+	"""look at the diff btwn 2 strings, the current, and the recommended move, and find the index that's diff"""
+	for i in range(9):
+		if now[i] != recommended[i]:
+			return i
+
+def move_helper(board, side=1, memoization=False): # side=1 is when comp goes
+	key = convert_to_key(board)
+
+	if not memoization:
+		visit(key)
+	
+	children = list(r[key]['children'])
+
+	if side == 1: # we care abt beta, so we get the lowest alpha of our children; we are computer; we are 0
+		alphas = [r[child_key]['alpha'] for child_key in children]
+		index = argmin(alphas)
+		best = children[index] # key of the child that has the lowest alpha
+		game_state = alphas[index] # value of the lowest alpha
+	else:
+		betas = [r[child_key]['beta'] for child_key in children]
+		index = argmax(betas)
+		best = children[index] # key of the child that has the highest beta
+		game_state = betas[index] # value of the highest beta	
+
+	return game_state, state_move(key, best)
+
+def test2():
+	board = [0,1,0,None,1,None,1,None,None]
+	# board = [1,None,None,None,None,None,None,None,None]
+	print move_helper(board)
+	print_board(board)
+
+def test1():
+	board = [0,1,0,1,1,0,1,None,None]
+	print move_helper(board)
+	print_board(board)
+
+def test3():
+	board = [1,0,1,1,0,None,0,None,None] # then computer goes
+	print move_helper(board)
+	print_board(board)	
+
+def play(board):
 	while None in board:
 		print_board(range(9))
 		print ''
@@ -26,7 +177,7 @@ def play():
 
 		print '\nNow, computer goes...\n'
 
-		move = move_helper(board, 0)
+		move = move_helper(board, memoization=True)
 		print move
 		board[move[1]] = 0
 		print_board(board)
@@ -36,84 +187,14 @@ def play():
 			print_win(board)
 			break
 
-def play_computer_first():
-	while None in board:
-		print '\nComputer goes...\n'
-
-		move = move_helper(board, 0)
-		#print move
-		board[move[1]] = 0
-		print_board(board)
-		print '\n'
-
-		if check_win(board)[0]:
-			print_win(board)
-			break
-
-		print_board(range(9))
-		print ''
-		print_board(board)
-
-		board[int(raw_input('Which space? '))] = 1 # I go first always, instead of computer
-		print_board(board)
-
-		if check_win(board)[0]:
-			print_win(board)
-			break
-
-def print_win(board):
-	result = check_win(board)[1]
-	if result == 1:
-		print 'Player wins'
-	elif result == 0:
-		print 'Tie'
-	elif result == -1:
-		print 'Computer wins'
-
-def move_helper(board, side):
-	board = board[:] # copies the list board
-	best = [None, None]
-
-	result = check_win(board)
-	if result[0]: # i don't need side == 0 bc 0 can only win on 0s turn. right?
-		return [result[1]] # before I had 0 instead of None. But I don't state a position to move, right?
-
-	if side == 0:
-		best[0] = 1 # was -1 before
-	else:
-		best[0] = -1
-
-	avail_moves = [i for i in range(len(board)) if board[i] == None]
-
-	for i in range(len(avail_moves)): # bc i found that i can't pop() sth if it's being held by for loop
-		temp_pop = avail_moves.pop()
-		board_copy = board[:]
-		board_copy[temp_pop] = side # was i before
-		reply = move_helper(board_copy, abs(side - 1))
-		avail_moves.insert(0, temp_pop) # push to the beginning? depends on pop(i) beh
-
-		if (side == 0 and reply[0] <= best[0]) or (side == 1 and reply[0] >= best[0]):
-			best[0] = reply[0]
-			#print 'best result is {} when board looks like this:'.format(best)
-			#print_board(board_copy)
-			best[1] = temp_pop
-
-	return best
-
-def test():
-	board = [0,1,0,None,1,None,1,None,None]
-	print_board(board)
-
-	print move_helper(board, 0)
-
-def this_fails():
-	board = [1,0,0,0,1,1,None,1,None] # then computer goes
-	print_board(board)
-
-	play_computer_first()
+def benchmark():
+	board = [None for i in range(9)]
+	board[1] = 1
+	print move_helper(board, memoization=False)
 
 if __name__=='__main__':
+	# benchmark()
 	board = [None for i in range(9)]
-	board[0] = 0
-	board[1] = 1
-	play()
+	print 'I am 1. Computer is 0.'	
+	play(board)	
+	# test3()

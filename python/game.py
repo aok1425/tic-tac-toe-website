@@ -4,7 +4,7 @@
 # check_win() is [score-value, move]
 # in visit(), you don't know all your children until after you loop through them
 
-from original.game import check_win, print_board, print_win
+from command_line_version.game import check_win, print_board, print_win
 from numpy import argmin, argmax
 
 r = {}

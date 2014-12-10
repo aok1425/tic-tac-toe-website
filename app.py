@@ -35,7 +35,7 @@ def computer_move():
 
             print '\nNow, computer goes...\n'
 
-            move = move_helper(board, 0)
+            move = move_helper(board)
             print 'this was the move that computer tried:', move[1]
             board[move[1]] = 0
 
@@ -47,7 +47,7 @@ def computer_move():
 
         print '\nNow, computer goes...\n'
 
-        move = move_helper(board, 0)
+        move = move_helper(board)
         print 'this was the move that computer tried:', move[1]
         board[move[1]] = 0
 
@@ -60,7 +60,7 @@ def computer_move():
 
 #     print '\nNow, computer goes...\n'
 
-#     move = move_helper(board, 0)
+#     move = move_helper(board)
 #     print 'this was the move that computer tried:', move[1]
 #     board[move[1]] = 0
 

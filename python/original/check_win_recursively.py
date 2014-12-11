@@ -127,14 +127,14 @@ def check_win(board):
 
 			if False not in [board[i] == marker for i in indices]:
 				if marker == 0:
-					return [True, -1]
+					return [True, -1] # Computer wins/Player loses
 				else:
-					return [True, 1]
+					return [True, 1] # Player wins/Computer loses
 
 	if None in board:
-		return [False]
+		return [False] # game not over
 	else:
-		return [True, 0]
+		return [True, 0] # tie
 
 def test():
 	board = [1,0,0,0,1,1,None,1,0]

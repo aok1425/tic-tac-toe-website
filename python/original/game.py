@@ -156,10 +156,11 @@ def test2():
 
 def benchmark():
 	board = [None for i in range(9)]
+	board[1] = 1
 	print move_helper(board)
 
 if __name__=='__main__':
-	# benchmark()
+	benchmark()
 	# board = [None for i in range(9)]
 	# play(board)
-	test2()
+	# test2()

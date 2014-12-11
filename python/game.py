@@ -12,9 +12,14 @@ try:
 	with open('python/board_states.pkl', "rb") as pfile:
 	    r = pickle.load(pfile)
 except:
-	r = {}
+	try:
+		with open('board_states.pkl', "rb") as pfile:
+		    r = pickle.load(pfile)
+	except:
+		r = {}
 
 def init(key):
+	"""Takes board state as key, and initializes values in the dictionary r."""
 	r[key] = {
 		'children': set(),
 		'alpha': -10,
@@ -23,7 +28,7 @@ def init(key):
 		'parent': None}
 
 def convert_to_key(board):
-	"""Takes in a board, and converts it to int to use a key in the dict r."""
+	"""Takes in a board, and converts it to a key."""
 	new_board = []
 
 	for sq in board:
@@ -56,7 +61,7 @@ def push_to_parent(key, child_key, side):
 			r[key]['beta'] = r[child_key]['alpha']	
 
 def alpha_beta_break(key, side):
-	"""If node's alpha is more than parent's beta, or node's beta is less than parent's alpha, it's not worth looking deeper into tree. So break."""
+	"""If node's alpha is more than parent's beta, or node's beta is less than parent's alpha, it's not worth looking deeper into tree. Return True, which will break the for loop search."""
 	if r[key]['parent']:
 		if side == 0:
 			if r[r[key]['parent']]['beta'] < r[key]['alpha']:
@@ -67,13 +72,13 @@ def alpha_beta_break(key, side):
 				print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])					
 				return True	
 
-def visit(key, side=1):
-	"""key is in the str code format"""
-	print 'visiting {} at side {}'.format(key, side)
+def visit(key, level=1): # level=1 is when computer goes
+	"""Takes a key, and creates and visits all possible subsequent board states recursively in the dict r."""
+	print 'visiting {} at level {}'.format(key, level)
 
 	if key not in r:
 		init(key)
-	else:
+	else: # memoization technique #1
 		if r[key]['alpha'] != -10 and r[key]['beta'] != 10:
 			return 'skipping this, already in dict'
 
@@ -88,9 +93,8 @@ def visit(key, side=1):
 		r[key]['beta'] = r[key]['value']
 	else:
 		for i in range(len(avail_moves)): # bc i found that i can't pop() sth if it's being held by for loop
-			temp_pop = avail_moves.pop()
 			board_copy = board[:]
-			board_copy[temp_pop] = abs(side - 1) # was i before
+			board_copy[avail_moves.pop()] = abs(level - 1) # if I make level, need to make this x % 2
 
 			child_key = convert_to_key(board_copy)	
 
@@ -99,30 +103,33 @@ def visit(key, side=1):
 
 			r[child_key]['parent'] = key
 			r[key]['children'].add(child_key)
-			visit(child_key, abs(side - 1))
+			visit(child_key, abs(level - 1))
 
-			push_to_parent(key, child_key, side)
+			push_to_parent(key, child_key, level)
 
-			if alpha_beta_break(key, side):
+			if alpha_beta_break(key, level):
 				break				
 
 			print 'going back to {} {}/{}/{}'.format(key, r[key]['alpha'], r[key]['beta'], r[key]['value'])	
 
 def state_move(now, recommended):
-	"""look at the diff btwn 2 strings, the current, and the recommended move, and find the index that's diff"""
+	"""Takes 2 different strings, and finds the index where they differ. This is the move made between the two states."""
 	for i in range(9):
 		if now[i] != recommended[i]:
 			return i
 
-def move_helper(board, side=1, memoization=False): # side=1 is when comp goes
+def move_helper(board, level=1, memoization=False): # level=1 is when comp goes
+	"""Takes board and creates game tree using visit().
+	Returns the best move for the inputted board state, given the level/side, and child values.
+	First element of output is game_state according to check_win(). Second is move."""
 	key = convert_to_key(board)
-
-	if not memoization:
-		visit(key)
+	
+	if not memoization: # memoization technique #2
+		visit(key, level)
 	
 	children = list(r[key]['children'])
 
-	if side == 1: # we care abt beta, so we get the lowest alpha of our children; we are computer; we are 0
+	if level == 1: # we care abt beta, so we get the lowest alpha of our children; we are computer; we are 0
 		alphas = [r[child_key]['alpha'] for child_key in children]
 		index = argmin(alphas)
 		best = children[index] # key of the child that has the lowest alpha
@@ -155,13 +162,17 @@ def test1():
 def test2():
 	board = [0,1,0,None,1,None,1,None,None]
 	# board = [1,None,None,None,None,None,None,None,None]
-	print move_helper(board)
+	print move_helper(board, memoization=False)
 	print_board(board)
 
 def test3():
 	board = [1,0,1,1,0,None,0,None,None] # then computer goes
 	print move_helper(board)
 	print_board(board)	
+
+def test4():
+	board = [1,0,1,1,0,None,0,None,None] # then computer goes
+	visit(convert_to_key(board))
 
 def play(board):
 	while None in board:
@@ -194,8 +205,8 @@ def benchmark():
 	print move_helper(board, memoization=False)
 
 if __name__=='__main__':
-	# benchmark()
+	benchmark()
 	# board = [None for i in range(9)]
 	# print 'I am 1. Computer is 0.'	
 	# play(board)	
-	test2()
+	# test1()

@@ -1,0 +1,32 @@
+speed tests on my Toshiba/Lubuntu
+
+regular minimax
+11
+11.2
+
+just choose-first
+3.45
+3.39
+3.38
+
+just alpha-beta
+5.7
+5.79
+5.72
+
+choose-first, then alpha-beta
+3.44
+3.35
+3.35
+
+alpha-beta, then choose-first
+3.43
+3.35
+3.38
+
+There are some conditions that don't match alpha-beta but that match choose-first.
+The are no conditions that don't match choose-first that match alpha-beta.
+
+That implies that I should put choose-first first.
+
+The stats are ambiguous.

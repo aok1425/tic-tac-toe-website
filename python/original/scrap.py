@@ -5,7 +5,7 @@ If I pass the list as an argument into the recursive function, I assume that onc
 """
 
 # I was trying to find a way to get it to skip L here. But then F has to check B in order to break the for loop
-# but B is outside of its scope. B is not best, nor is it reply. Those are from F's POV.
+# but B is outside of its scope. B is not current, nor is it child. Those are from F's POV.
 # The only way I can think to have F find out about B (or vice-versa) is to end the function first.
 # But F needs to know about B before it breaks the function! Catch-22, I think.
 # Means that you can't do these kind of scope-y things with just regular functions, I think.
@@ -26,7 +26,7 @@ def remaining_moves(ltr):
 	elif ltr == 'f':
 		return list('kl')
 
-def move_helper(board, side=0):
+def move_helper(board, side=0, parent=[False]): # parent depends on side, but i'll assume I will always only ask for computer's turn
 	print 'looking at', board
 
 	result = check_win(board)
@@ -35,25 +35,28 @@ def move_helper(board, side=0):
 		return [result[1]]
 
 	if side == 0:
-		best = [1, None] # score-value, move
+		current = [1, None] # score-value, move
 	else:
-		best = [-1, None]
+		current = [-1, None]
 
 	avail_moves = remaining_moves(board)
 
 	for temp_pop in avail_moves:
-		reply = move_helper(temp_pop, abs(side - 1))
+		child = move_helper(temp_pop, abs(side - 1), current)
 
-		if (side == 0 and reply[0] <= best[0]) or (side == 1 and reply[0] >= best[0]):
+		if (side == 0 and child[0] <= current[0]) or (side == 1 and child[0] >= current[0]):
 			print temp_pop, 'replaces', board
-			best[0] = reply[0]
-			best[1] = temp_pop
+			current[0] = child[0]
+			current[1] = temp_pop
 
-		if (side == 0 and reply[0] == -1) or (side == 1 and reply[0] == 1):
-			return best				
+		if (side == 0 and parent[0] > current[0]) or (side == 1 and parent[0] < current[0]):
+			return current
+
+		# if (side == 0 and child[0] == -1) or (side == 1 and child[0] == 1):
+		# 	return current				
 
 		print 'about to compare {} to {}'.format(temp_pop, board)
 
-	return best
+	return current
 
 print move_helper('b')

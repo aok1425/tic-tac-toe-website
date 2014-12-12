@@ -3,10 +3,24 @@ Because Tic-Tac-Toe has a finite, relatively small number of possiblities, a com
 
 Update (10/7/14): made `check_win()` recursive. more generalizable, but way slower. I can implement alpha-beta pruning to speed it up.
 
-Update (12/11/14): added quasi-alpha-beta!
+Update (12/11/14): added 'choose-first' pruning and alpha-beta pruning
 
 ## How to play
 Open the directory containing the file in Terminal, then type `python game.py`.
+
+### 'Choose-first' pruning
+The nature of tic-tac-toe is that there are only 3 end-states: win, lose, or tie. All wins have the same value. Same with losses. (e.g. In football, I could win with 14 points, or I could win with 21 points. In tic-tac-toe, all wins have the same value.)
+
+For the Minimax algorithm, this means that when it finds a win, it is extraneous to search further for more ways to win.
+
+So, the way I implemented 'choose-first' pruning, if the computer finds a win (whose value equals the best possible outcome), it stops looking at the other board states.
+
+If there were multiple win values, it would be less likely that when the computer finds a win, it would stop searching the other board states, because that win would not likely be the best possible outcome. 
+
+If wins had different values, then the computer wouldn't prune as much as it does here, and the algorithm would behave more like regular Minimax instead of Minimax with pruning.
+
+### Alpha-beta pruning
+In regular alpha-beta pruning, a node/board state compares its values to those of the parent node. If these values are favorable, the computer doesn't need to look further for additional nodes and their values.
 
 ## My learning process
 Thank goodness for the internet. A Google search turns up tic-tac-toe AI using Python, but I did not look at these sites. I did, however, [read a blog post on using an algorithm called Minimax for a game involving matches](http://callmesaint.com/python-minimax-tutorial/). I also watched a bunch of MIT OpenCourseWare videos on [Minimax](https://www.youtube.com/watch?v=STjW3eH0Cik), [alpha-beta pruning](https://www.youtube.com/watch?v=hM2EAvMkhtk), and [recursion in programming](https://www.youtube.com/watch?v=WbWb0u8bJrU).
@@ -29,27 +43,3 @@ I worked through that implementation of the algorithm by hand, effectively using
 I then 'ported' the implementation of the algorithm from the matches game to work with Tic-Tac-Toe. I started with `move_helper()`, then wrote everything else to work with that.
 
 Debugging was interesting. What helped most was to 'interpret' my function using paper and my brain, and also having a separate sheet of paper where I implemented the algorithm by hand.
-
-## Quasi-alpha-beta pruning
-I was able to implement something that doesn't work the same as alpha-beta pruning, but which gives me the same desired results, because of the specific nature of tic-tac-toe.
-
-### Regular alpha-beta pruning
-In regular alpha-beta pruning, a node compares its values to those of the parent node. If these values are favorable, the computer doesn't need to look further for additional nodes and their values.
-
-The way I created my program, I can't compare values of variable X in the current scope to values of variable Y in the parent scope without leaving the current function. But, I need the parent scope's Y values in order to decide whether to stop the current scope's function and go to the parent scope. This is a catch-22.
-
-Global scope variables don't work, because if I change the values of variable Y in the 5th scope (because it's a recursive function), then Y in scopes 1-4 change too. I only want Y in the 5th scope to change, and Y in the other scopes to remain as they are.
-
-### Quasi-alpha-beta pruning
-The nature of tic-tac-toe is that there are only 3 end-states: win, lose, or tie. There are not multiple win values. (e.g. Let's say I win a game of football. My opponent has 0 points. I could have won with 14 points, or I could have won with 21 points. In tic-tac-toe, all wins have the same value.)
-
-For the Minimax algorithm, this means that when it finds a win, it is extraneous to search further for more ways to win, because there is only one win value.
-
-So, the way I implemented quasi-alpha-beta pruning, if the computer finds a win (whose value equals the best possible outcome), it stops looking at the other nodes/board states.
-
-If there were multiple win values, it would be less likely that when the computer finds a win, it would stop searching the other board states, because that win would not likely be the best possible outcome.
-
-### Conclusion
-While this quasi-alpha-beta pruning does 'cut off' parts of the tree, it doesn't do so by looking at parent values. It does so by knowing the max desired value, and whether that is satisfied. That max desired value is satisfied more frequently in tic-tac-toe because all wins have the same value, and similarly for losses.
-
-If wins had different values, then the computer wouldn't cut off as many parts of the tree as it does here, and the algorithm would behave more like regular Minimax instead of Minimax with alpha-beta pruning.

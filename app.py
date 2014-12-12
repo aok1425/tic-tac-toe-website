@@ -1,5 +1,6 @@
 from flask import Flask, session, redirect, url_for, escape, request, render_template
 from python.game import *
+# from python.original.game import move_helper # for non-memoized version that has non-state/dict Minimax w/choose-first and alpha-beta pruning
 
 app = Flask(__name__)
 board = [None for i in range(9)]

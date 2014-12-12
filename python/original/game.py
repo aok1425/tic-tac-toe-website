@@ -1,21 +1,10 @@
 # I am 1. Computer is 0. on the board and in move_helper()
-# check_win() is [score-value, move]
+# check_win() returns [score-value, move]
 
 # 12/11/14: added choose_first. If True, once program finds a winning set of routes, it will stop searching and do that set.
 # Thinking behind this is that it would choose the quickest way to win.
 # But actually, it will choose the first one it sees, in the tree going from left to right.
 # So it may not choose the quickest way, but rather the way that involves the first empty space it sees, reading top-down, left-right.
-
-# Does this also function as alpha-beta pruning? It stops the for loop. So maybe it's both choose_first and alpha-beta?
-
-# It's like quasi-alpha-beta. I think it only works bc leaf node values are 1/-1/0. So, we can stop the for loop if we get to a max value.
-# That's not how alpha-beta works. That works by comparing the value (alpha/beta) to the value of its parent node.
-# This quasi-alpha-beta doesn't look at the parent node. It just stops the for loop if it finds a desired max value at the leaf node.
-
-# I still don't understand how the alg finds the best path if, say, it has multiple paths to a win.
-# My understanding is that it just chooses the most recent path, going left to right
-# Maybe after I make the first move, all the paths get back as a tie, so it doesn't run into the above problem.
-# Any way to print things to find out?
 
 from check_win_recursively import check_win
 
@@ -24,7 +13,7 @@ def print_board(board):
 	print ' '.join(['-' if i == None else str(i) for i in board][3:6])
 	print ' '.join(['-' if i == None else str(i) for i in board][6:])
 
-def play(board, choose_first=False):
+def play(board):
 	while None in board:
 		print_board(range(9))
 		print ''
@@ -39,7 +28,7 @@ def play(board, choose_first=False):
 
 		print '\nNow, computer goes...\n'
 
-		move = move_helper(board, 0, choose_first)
+		move = move_helper(board, 0)
 		print move
 		board[move[1]] = 0
 		print_board(board)
@@ -83,20 +72,19 @@ def print_win(board):
 	elif result == -1:
 		print 'Computer wins'
 
-def move_helper(board, side=0, choose_first=True):
+def move_helper(board, side=0, parent=[False], memoization=None): # side=0 is computer's turn; memoization is to make this fn compatible w newer one, so app.py can call either one
 	"""Side=0 is when computer goes. If choose_first=True, computer will pick the first winning path instead of continuing to find other possible winning paths.
 	This works in tic-tac-toe bc you can only win/lose/tie, 1/-1/0. If there were other end game states, choose_first wouldn't work."""
 	board = board[:] # copies the list board
-	best = [None, None] # score-value, move
 
 	result = check_win(board)
 	if result[0]:
 		return [result[1]]
 
 	if side == 0:
-		best[0] = 1
+		current = [1, None] # score-value, move
 	else:
-		best[0] = -1
+		current = [-1, None]
 
 	avail_moves = [i for i in range(len(board)) if board[i] == None]
 
@@ -104,17 +92,24 @@ def move_helper(board, side=0, choose_first=True):
 		temp_pop = avail_moves.pop()
 		board_copy = board[:]
 		board_copy[temp_pop] = side
-		reply = move_helper(board_copy, abs(side - 1))
+		child = move_helper(board_copy, abs(side - 1), parent=current)
 
-		if (side == 0 and reply[0] <= best[0]) or (side == 1 and reply[0] >= best[0]):
-			best[0] = reply[0]
-			best[1] = temp_pop
+		# regular Minimax
+		if (side == 0 and child[0] <= current[0]) or (side == 1 and child[0] >= current[0]):
+			current[0] = child[0]
+			current[1] = temp_pop
 
-		if choose_first:
-			if (side == 0 and reply[0] == -1) or (side == 1 and reply[0] == 1):
-				return best	
+		# choose-first. can only happen in tic-tac-toe, when win state = best possible outcome. ie no multiple win values
+		if (side == 0 and child[0] == -1) or (side == 1 and child[0] == 1):
+			# print 'choose_first'
+			return current # breaks the for loop
 
-	return best
+		# alpha-beta pruning
+		if (side == 0 and parent[0] > current[0]) or (side == 1 and parent[0] < current[0]):
+			# print 'alpha-beta'
+			return current # breaks the for loop
+
+	return current
 
 def test1():
 	board = [0,1,0,None,1,None,1,None,None]
@@ -125,7 +120,7 @@ def test1():
 def test2():
 	board = [1,0,0,0,1,1,None,1,None] # then computer goes
 	print_board(board)
-	print move_helper(board, 1)
+	print move_helper(board, 0)
 	# play_computer_first(board)
 
 def test3():
@@ -134,10 +129,11 @@ def test3():
 	print move_helper(board, 0)
 	# play(board) # don't choose 2
 
-def test4(i):
+def test4():
 	board = [None for i in range(9)]
-	board[i] = 1
-	print move_helper(board, 0)
+	board[1] = 1
+	print move_helper(board)
+	print_board(board)
 
 def test5(sq, board):
 	board = board[:]
@@ -167,13 +163,18 @@ def test2():
 	print move_helper(board, 0)
 	print_board(board)
 
+def test5(): # why does this return [1,1]? i don't see how player will win here.
+	board = [1, None, 1, None, None, 0, None, None, None]
+	print move_helper(board)
+	print_board(board)	
+
 def benchmark():
 	board = [None for i in range(9)]
 	board[1] = 1
 	print move_helper(board)
 
 if __name__=='__main__':
-	# benchmark()
+	benchmark()
 	# board = [None for i in range(9)]
-	# play(board, False)
-	test3()
+	# play(board)
+	# test5()
